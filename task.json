@@ -1,0 +1,109 @@
+{
+	"id": "89ee00a2-b353-4df4-85a4-6137298a2169",
+	"name": "IncrementVersion",
+	"friendlyName": "Increment Version",
+	"description": "Inc version from AssemblyInfo",
+	"author": "Tomer Levitt",
+	"helpMarkDown": "Increment Version from AssemblyInfo and set it into build variable.  Task icon taken from https://icons8.com/",
+	"category": "Utility",
+	"visibility": [
+		"Build"
+	],
+	"version": {
+		"Major": "0",
+		"Minor": "1",
+		"Patch": "32"
+	},
+	"minimumAgentVersion": "1.95.0",
+	"instanceNameFormat": "Increment Version",
+	"groups": [
+        {
+            "name": "increment",
+            "displayName": "Increment",
+            "isExpanded": true
+		},
+        {
+            "name": "advanced",
+            "displayName": "Advanced",
+            "isExpanded": true
+        }
+	],
+	"inputs": [{
+		"name": "filePath",
+		"type": "filePath",
+		"label": "File Path",
+		"groupName": "increment",
+		"defaultValue": "",
+		"required": true,
+		"helpMarkDown": "Select File taht contain version (AssemblyInfo/csproj)"
+	},
+	{
+		"name": "versionType",
+		"type": "pickList",
+		"label": "Version Type",
+		"groupName": "increment",
+		"defaultValue": "Revision",
+		"required": true,
+		"options": {
+			"None": "None",
+			"Major": "Major",
+			"Minor": "Minor",
+			"Build": "Build",
+			"Revision": "Revision",
+			"Custom": "Custom"
+		},
+		"helpMarkDown": "Select increment type: None, Major, Minor, Build, Revision or Custom type"
+	},
+	{
+		"name": "CustomType",
+		"type": "string",
+		"label": "Custom Version Type",
+		"groupName": "increment",
+		"defaultValue": "$(versionType)",
+		"required": false,
+		"visibleRule": "versionType == Custom",
+		"helpMarkDown": "Select increment type: None (0), Major (1), Minor (2), Build (3), Revision(4) or Specefic Version"
+	},
+	{
+		"name": "variableName",
+		"type": "string",
+		"label": "Return New Version",
+		"groupName": "increment",
+		"defaultValue": "Version",
+		"required": true,
+		"helpMarkDown": "The version number will be updated with a variable in the defined name (only if there was a change in the version)"
+	},
+	{
+		"name": "versionProperty",
+		"type": "pickList",
+		"label": "Version Property",
+		"groupName": "advanced",
+		"defaultValue": "AssemblyVersion",
+		"required": true,
+		"options": {
+			"AssemblyVersion": "AssemblyVersion (cs & csproj)",
+			"AssemblyFileVersion": "AssemblyFileVersion (cs)",
+			"FileVersion": "FileVersion (csproj)",
+			"Version": "Version (csproj)"
+		},
+		"helpMarkDown": "Get Current Version from property value."
+	},
+	{
+		"name": "updateIncVersion",
+		"type": "boolean",
+		"label": "Update Version",
+		"groupName": "advanced",
+		"defaultValue": "False",
+		"required": true,
+		"helpMarkDown": "Check out file & and update version number"
+	}],
+	"execution": {
+		"PowerShell3": {
+			"target": "IncreaseVersion.ps1",
+			"platforms": [
+				"windows"
+			],
+			"workingDirectory": "$(currentDirectory)"
+		}
+	}
+}
