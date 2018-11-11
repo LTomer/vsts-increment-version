@@ -113,18 +113,18 @@ function Get-IncVersion($versionType, $currentVersion, $customVersion) {
     return [string]$incVersion
 }
 
-function Update-Version($filePath, $versionProperty, $currentVersion, $newVersion) {
+function Update-Version($FilePath, $versionProperty, $currentVersion, $newVersion) {
 
-    Write-Debug "Update-Version: [FileName=$filePath, VersionProperty=$versionProperty, CurrentVersion=$currentVersion, NewVersion=$newVersion]"
+    Write-Debug "Update-Version: [FileName=$FilePath, VersionProperty=$versionProperty, CurrentVersion=$currentVersion, NewVersion=$newVersion]"
 
-    $contents = [System.IO.File]::ReadAllText($filePath)
-    $pattern = Get-Pattern -filePath $filePath -versionType $versionProperty
+    $contents = [System.IO.File]::ReadAllText($FilePath)
+    $pattern = Get-Pattern -filePath $FilePath -VersionProperty $versionProperty
 
     $currentLine = [RegEx]::Match($contents, $pattern)
     $newLine = $currentLine.Value -replace $currentVersion, $newVersion
     $contents = $contents.Replace($currentLine.Value, $newLine)
 
-    [System.IO.File]::WriteAllText($filePath, $contents)
+    [System.IO.File]::WriteAllText($FilePath, $contents)
 }
 
 
@@ -153,5 +153,5 @@ if($updateIncVersionInput -and $newVersion -and $currentVersion -ne $newVersion)
     Write-Host ("Check-Out & Update file with new version")
     tf checkout $filePathInput
 
-    Update-Version -filePath $filePathInput -versionProperty $versionPropertyInput -currentVersion $currentVersion -newVersion $newVersion
+    Update-Version -FilePath $filePathInput -VersionProperty $versionPropertyInput -currentVersion $currentVersion -newVersion $newVersion
 }
