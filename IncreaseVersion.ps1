@@ -5,19 +5,19 @@ function Get-VersionPattern {
     return "\d+\.\d+\.\d+\.\d+"
 }
 
-function Get-Pattern($filePath, $versionType) {
+function Get-Pattern($filePath, $VersionProperty) {
 
-    Write-Debug "Get-Pattern: [FileName=$filePath, VersionType=$versionType]"
+    Write-Debug "Get-Pattern: [FileName=$filePath, VersionProperty=$VersionProperty]"
 
     $isCS = $filePath.ToLower().endswith(".cs")
     $isCSPROJ = $filePath.ToLower().endswith(".csproj")
 
-    if($isCS -and ($versionType -ne "AssemblyVersion" -and $versionType -ne "AssemblyFileVersion")){
-        Write-Error "Version Property not valid for cs file ($versionType)"
+    if($isCS -and ($VersionProperty -ne "AssemblyVersion" -and $VersionProperty -ne "AssemblyFileVersion")){
+        Write-Error "Version Property not valid for cs file ($VersionProperty)"
         return;
     }
-    elseif ($isCSPROJ -and ($versionType -ne "AssemblyVersion" -and $versionType -ne "FileVersion" -and $versionType -ne "Version")){
-        Write-Error "Version Property not valid for csproj file ($versionType)"
+    elseif ($isCSPROJ -and ($VersionProperty -ne "AssemblyVersion" -and $VersionProperty -ne "FileVersion" -and $VersionProperty -ne "Version")){
+        Write-Error "Version Property not valid for csproj file ($VersionProperty)"
         return;
     }
     
@@ -39,11 +39,11 @@ function Get-Pattern($filePath, $versionType) {
     return $pattern.Replace("__VersionPattern__", $versionPattern).Replace("__TYPE__", $versionType);
 }
 
-function Get-CurrentVersion($filePath, $versionProperty) {
+function Get-CurrentVersion($filePath, $VersionProperty) {
 
-    Write-Debug "Get-CurrentVersion: [FileName=$filePath, VersionProperty=$versionProperty]"
+    Write-Debug "Get-CurrentVersion: [FileName=$filePath, VersionProperty=$VersionProperty]"
 
-    $pattern = Get-Pattern -filePath $filePath -versionType $versionProperty
+    $pattern = Get-Pattern -filePath $filePath -VersionProperty $VersionProperty
     $contents = [System.IO.File]::ReadAllText($filePath)
     $tempString = [RegEx]::Match($contents, $pattern)
 
@@ -137,7 +137,7 @@ $customVersion = Get-VstsInput -Name CustomType
 $versionProperty = Get-VstsInput -Name versionProperty -Require
 $updateIncVersion = Get-VstsInput -Name updateIncVersion -Require
 
-$currentVersion = Get-CurrentVersion -filePath $filePath -versionProperty $versionProperty
+$currentVersion = Get-CurrentVersion -filePath $filePath -VersionProperty $versionProperty
 Write-Host ("Current Version: " + $currentVersion)
 
 $newVersion = Get-IncVersion -versionType $versionType -currentVersion $currentVersion -customVersion $customVersion
