@@ -23,7 +23,7 @@ function Get-Pattern($filePath, $VersionProperty) {
     
     # AssemblyVersion, AssemblyFileVersion
     if($isCS)    {
-        $pattern = '\[assembly\: __TYPE__\("__VersionPattern__)"\)\]'
+        $pattern = '\[assembly\: __TYPE__\("__VersionPattern__"\)\]'
     }
     # AssemblyVersion, FileVersion, Version
     elseif ($isCSPROJ) {
@@ -36,7 +36,7 @@ function Get-Pattern($filePath, $VersionProperty) {
     }
 
     $versionPattern = Get-VersionPattern
-    return $pattern.Replace("__VersionPattern__", $versionPattern).Replace("__TYPE__", $versionType);
+    return $pattern.Replace("__VersionPattern__", $versionPattern).Replace("__TYPE__", $VersionProperty);
 }
 
 function Get-CurrentVersion($filePath, $VersionProperty) {
@@ -130,28 +130,28 @@ function Update-Version($filePath, $versionProperty, $currentVersion, $newVersio
 
 Write-Debug "---> Read VSTS Inputs"
 #Read Detail from vsts inputs
-$filePath = Get-VstsInput -Name filePath -Require
-$versionType = Get-VstsInput -Name versionType -Require
-$variableName = Get-VstsInput -Name variableName -Require
-$customVersion = Get-VstsInput -Name CustomType
-$versionProperty = Get-VstsInput -Name versionProperty -Require
-$updateIncVersion = Get-VstsInput -Name updateIncVersion -Require
+$filePathInput = Get-VstsInput -Name filePath -Require
+$versionTypeInput = Get-VstsInput -Name versionType -Require
+$variableNameInput = Get-VstsInput -Name variableName -Require
+$customVersionInput = Get-VstsInput -Name CustomType
+$versionPropertyInput = Get-VstsInput -Name versionProperty -Require
+$updateIncVersionInput = Get-VstsInput -Name updateIncVersion -Require
 
-$currentVersion = Get-CurrentVersion -filePath $filePath -VersionProperty $versionProperty
+$currentVersion = Get-CurrentVersion -filePath $filePathInput -VersionProperty $versionPropertyInput
 Write-Host ("Current Version: " + $currentVersion)
 
-$newVersion = Get-IncVersion -versionType $versionType -currentVersion $currentVersion -customVersion $customVersion
+$newVersion = Get-IncVersion -versionType $versionTypeInput -currentVersion $currentVersion -customVersion $customVersionInput
 
-if($variableName)
+if($variableNameInput)
 {
     Write-Debug "--> Update variable with new version"
     Write-Host ("New Version: " + $newVersion)
-    Write-Host ("##vso[task.setvariable variable=$variableName]$newVersion")
+    Write-Host ("##vso[task.setvariable variable=$variableNameInput]$newVersion")
 }
 
-if($updateIncVersion -and $newVersion -and $currentVersion -ne $newVersion){
+if($updateIncVersionInput -and $newVersion -and $currentVersion -ne $newVersion){
     Write-Host ("Check-Out & Update file with new version")
-    tf checkout $filePath
+    tf checkout $filePathInput
 
-    Update-Version -filePath $filePath -versionProperty $versionProperty -currentVersion $currentVersion -newVersion $newVersion
+    Update-Version -filePath $filePathInput -versionProperty $versionPropertyInput -currentVersion $currentVersion -newVersion $newVersion
 }
