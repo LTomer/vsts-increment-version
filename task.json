@@ -12,7 +12,7 @@
 	"version": {
 		"Major": "0",
 		"Minor": "1",
-		"Patch": "39"
+		"Patch": "42"
 	},
 	"minimumAgentVersion": "1.95.0",
 	"instanceNameFormat": "Increment Version",
@@ -81,6 +81,7 @@
 		"defaultValue": "AssemblyVersion",
 		"required": true,
 		"options": {
+			"AllCSVersion": "AssemblyVersion & AssemblyFileVersion (cs)",
 			"AssemblyVersion": "AssemblyVersion (cs & csproj)",
 			"AssemblyFileVersion": "AssemblyFileVersion (cs)",
 			"FileVersion": "FileVersion (csproj)",

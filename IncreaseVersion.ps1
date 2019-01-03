@@ -43,6 +43,9 @@ function Get-CurrentVersion($filePath, $VersionProperty) {
 
     Write-Debug "Get-CurrentVersion: [FileName=$filePath, VersionProperty=$VersionProperty]"
 
+    if($VersionProperty -eq "AllCSVersion"){
+        $VersionProperty = "AssemblyVersion"
+    }
     $pattern = Get-Pattern -filePath $filePath -VersionProperty $VersionProperty
     $contents = [System.IO.File]::ReadAllText($filePath)
     $tempString = [RegEx]::Match($contents, $pattern)
@@ -113,18 +116,23 @@ function Get-IncVersion($versionType, $currentVersion, $customVersion) {
     return [string]$incVersion
 }
 
-function Update-Version($FilePath, $versionProperty, $currentVersion, $newVersion) {
+function Update-Version($FilePath, $versionProperty, $newVersion) {
 
-    Write-Debug "Update-Version: [FileName=$FilePath, VersionProperty=$versionProperty, CurrentVersion=$currentVersion, NewVersion=$newVersion]"
+    Write-Debug "Update-Version: [FileName=$FilePath, VersionProperty=$versionProperty, NewVersion=$newVersion]"
 
-    $contents = [System.IO.File]::ReadAllText($FilePath)
     $pattern = Get-Pattern -filePath $FilePath -VersionProperty $versionProperty
 
-    $currentLine = [RegEx]::Match($contents, $pattern)
-    $newLine = $currentLine.Value -replace $currentVersion, $newVersion
-    $contents = $contents.Replace($currentLine.Value, $newLine)
+    $contents = [System.IO.File]::ReadAllText($FilePath)
 
-    [System.IO.File]::WriteAllText($FilePath, $contents)
+    $currentLine = [RegEx]::Match($contents, $pattern) #Get relevant line
+
+    $versionPattern = Get-VersionPattern
+    $version = [RegEx]::Match($currentLine, $versionPattern) #Get current version
+
+    $newLine = $currentLine.Value -replace $version, $newVersion #Update new version
+    $contents = $contents.Replace($currentLine.Value, $newLine) #Update contents
+
+    [System.IO.File]::WriteAllText($FilePath, $contents) #Save contents to file
 }
 
 
@@ -153,5 +161,11 @@ if($updateIncVersionInput -and $newVersion -and $currentVersion -ne $newVersion)
     Write-Host ("Check-Out & Update file with new version")
     tf checkout $filePathInput
 
-    Update-Version -FilePath $filePathInput -VersionProperty $versionPropertyInput -currentVersion $currentVersion -newVersion $newVersion
+    if($versionPropertyInput -eq "AllCSVersion"){
+        Update-Version -FilePath $filePathInput -VersionProperty "AssemblyVersion" -newVersion $newVersion
+        Update-Version -FilePath $filePathInput -VersionProperty "AssemblyFileVersion" -newVersion $newVersion
+    }
+    else{
+        Update-Version -FilePath $filePathInput -VersionProperty $versionPropertyInput -newVersion $newVersion
+    }
 }
